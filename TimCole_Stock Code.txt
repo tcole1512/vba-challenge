@@ -1,0 +1,136 @@
+
+Sub tickerstuff()
+
+for Each ws in Worksheets
+
+'Assign Names to Table Headers
+Range("J1").Value = "Ticker"
+Range("K1").Value = "Yearly Change"
+Range("L1").Value = "Percent Change"
+Range("M1").Value = "Total Stock Volume"
+Range("O1").Value = "Open Value"
+Range("P1").Value = "Closed Value"
+
+'Assign Names to Statistics
+Range("Q3").Value = "Greatest % Increase"
+Range("Q4").Value = "Greatest % Decrease"
+Range("Q5").Value = "Greatest Total Volume"
+
+'Hide Open and Closed Values
+Range("O:P").EntireColumn.Hidden = True
+
+'Dim variables
+Dim outputrow As Integer
+Dim difference As Double
+Dim perchange As Double
+Dim Rowmax As Long
+Dim lastrow As Integer
+Dim maxincrease As Double
+Dim maxdecrease As Double
+Dim maxvolume As LongLong
+Dim Item As Long
+Dim ticketvol As Long
+
+'Assign variables
+outputrow = 2
+Rowmax = Cells(Rows.Count,1).End(xlUp).Row
+lastrow = Cells(Rows.Count,10).End(xlUp).Row
+
+
+'Create Unique List of Ticket Names
+For I = 2 To Rowmax
+If Cells(I - 1, 1).Value <> Cells(I, 1).Value Then
+    Cells(outputrow, 10).Value = Cells(I, 1).Value
+    Cells(outputrow, 15).Value = Cells(I, 3).Value
+       outputrow = outputrow + 1
+End If
+Next I
+
+'Reset outputrow
+outputrow = 2
+
+'Find Close Values and place in column that will be hidden
+For I = 2 To Rowmax
+If Cells(I + 1, 1).Value <> Cells(I, 1).Value Then
+    Cells(outputrow, 16).Value = Cells(I, 6).Value
+       outputrow = outputrow + 1
+End If
+Next I
+
+
+
+'Find Yearly Change Values
+For I = 2 To lastrow
+    difference = Cells(I, 16).Value - Cells(I, 15).Value
+    Cells(I, 11).Value = difference
+    'Use formula to determine percent change and do not use 0 in denominator
+    If Cells(I, 15) <> 0 Then
+        perchange = (difference / (Cells(I, 15).Value))
+        Cells(I, 12).Value = Round(perchange, 4)
+    Else: Cells(I, 12).Value = 0
+    End If
+    'Format these to a percent
+    Range("L" & I).NumberFormat = "0.00%"
+    'Add formatting for fill color
+    Cells(I, 11).Interior.ColorIndex = IIf(difference > 0, 4, 3)
+Next I
+
+'Reset outputrow
+outputrow = 2
+'Find Total Volume
+For j = 2 To lastrow
+'Create variable to begin tickervol at zero
+tickvol = 0
+'Loop to sum ticket volume
+For I = 2 To Rowmax
+Item = Cells(I, 1).Value
+ If Cells(j, 10).Value = Item Then
+        tickvol = tickvol + Cells(I, 7).Value
+    End If
+Next I
+
+'Place these values in new table column
+Cells(outputrow, 13).Value = tickvol
+outputrow = outputrow + 1
+
+Next j
+
+'Determine final statistics
+
+maxincrease = WorksheetFunction.Max(Range("L2:L" & lastrow))
+maxdecrease = WorksheetFunction.Min(Range("L2:L" & lastrow))
+maxvolume = WorksheetFunction.Max(Range("M2:M" & lastrow))
+
+'Assign values from calculations
+Range("S3").Value = maxincrease
+Range("S4").Value = maxdecrease
+Range("S5").Value = maxvolume
+
+'Change formatting for percent fields
+Range("S3:S4").NumberFormat = "0.00%"
+
+'Create loop that matches maxincrease with table to find ticker
+For I = 2 To lastrow
+    If Cells(I, 12) = maxincrease Then
+        Range("R3").Value = Cells(I, 10).Value
+    End If
+Next I
+
+'Create loop that matches maxdecrease with table to find ticker
+For I = 2 To lastrow
+    If Cells(I, 12) = maxdecrease Then
+        Range("R4") = Cells(I, 10).Value
+    End If
+Next I
+
+'Create loop that matches highest volume with table to find ticker
+For I = 2 To lastrow
+    If Cells(I, 13) = maxvolume Then
+        Range("R5") = Cells(I, 10).Value
+    End If
+Next I
+
+'Repeat for next worksheet
+Next ws
+   
+End Sub
