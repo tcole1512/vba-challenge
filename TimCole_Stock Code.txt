@@ -27,7 +27,7 @@ Dim lastrow As Integer
 Dim maxincrease As Double
 Dim maxdecrease As Double
 Dim maxvolume As LongLong
-Dim Item As Long
+Dim Item As String
 Dim ticketvol As Long
 
 'Assign variables
