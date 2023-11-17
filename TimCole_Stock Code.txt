@@ -1,7 +1,6 @@
 
 Sub tickerstuff()
 
-for Each ws in Worksheets
 
 'Assign Names to Table Headers
 Range("J1").Value = "Ticker"
@@ -130,7 +129,5 @@ For I = 2 To lastrow
     End If
 Next I
 
-'Repeat for next worksheet
-Next ws
    
 End Sub
